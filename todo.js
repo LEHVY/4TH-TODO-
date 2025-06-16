@@ -30,49 +30,56 @@ function addListItem(text, status) {
     todolist.textContent = text;
 
 
-// Edit Icon
-let editIcon = document.createElement("BUTTON");
-editIcon.className = "editicon";
-editIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+    // Edit Icon
+    let editIcon = document.createElement("BUTTON");
+    editIcon.className = "editicon";
+    editIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
     <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/>
 </svg>`;
-editIcon.addEventListener("click", function () {
-    const currentText = todolist.childNodes[0].nodeValue.trim();
+    editIcon.addEventListener("click", function () {
+        const currentText = todolist.childNodes[0].nodeValue.trim();
+        editIcon.style.background = "red"
 
-    // Create input field
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = currentText;
+        // Create input field
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = currentText;
 
-    // Replace text node with input 
-    todolist.insertBefore(input, todolist.firstChild);
-    todolist.removeChild(todolist.childNodes[1]); // Remove original text node
+        // Replace text node with input 
+        todolist.insertBefore(input, todolist.firstChild);
+        todolist.removeChild(todolist.childNodes[1]); // Remove original text node
 
-    // Save edited text on blur or Enter
-    input.addEventListener("blur", saveEdit);
-    input.addEventListener("keypress", function (e) {
-        if (e.key === "Enter") {
-            saveEdit();
+        // Save edited text on blur or Enter
+        input.addEventListener("blur", saveEdit);
+        input.addEventListener("keypress", function (e) {
+
+            if (e.key === "Enter") {
+                saveEdit();
+            }
+        });
+
+        function saveEdit() {
+            editIcon.style.background = "blue"
+            const newText = input.value.trim();
+            if (newText === "") {
+                input.removeEventListener("blur", saveEdit);
+
+                alert("type a text")
+                input.focus();
+
+
+            } else {
+
+                const newTextNode = document.createTextNode(newText);
+                todolist.insertBefore(newTextNode, input);
+                todolist.removeChild(input);
+                saveToStorage();
+            }
         }
+
+        input.focus();
     });
-
-    function saveEdit() {
-        const newText = input.value.trim();
-        if (newText === "") {
-            alert("Text cannot be empty.");
-            input.focus();
-            return;
-        }
-
-        const newTextNode = document.createTextNode(newText);
-        todolist.insertBefore(newTextNode, input);
-        todolist.removeChild(input);
-        saveToStorage();
-    }
-
-    input.focus();
-});
-todolist.appendChild(editIcon);
+    todolist.appendChild(editIcon);
 
 
 
@@ -114,7 +121,7 @@ todolist.appendChild(editIcon);
 function saveToStorage() {
     const items = [];
     ul.querySelectorAll("li").forEach(li => {
-        const text = li.childNodes[0].nodeValue.trim();
+        const text = li.childNodes[0].nodeValue;
         const status = li.querySelector(".currentStatus").textContent;
         items.push({ text, status });
     });
@@ -129,5 +136,3 @@ function loadFromStorage() {
         items.forEach(item => addListItem(item.text, item.status));
     }
 }
-
-//updating a stored list element with edit icon
